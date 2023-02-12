@@ -1,2 +1,2 @@
 # ajax-with-djago
-i want to learn more about ajax and everything i learn i write it here on every commit and episode of course
+i want to learn more about ajax in django and everything i learn, write it here with every commit and each episode of course
