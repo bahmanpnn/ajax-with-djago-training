@@ -1,0 +1,1 @@
+# ajax-with-djago-training
