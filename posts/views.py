@@ -43,3 +43,7 @@ def send_data_two(request):
     return JsonResponse({
         'data': data
     })
+
+
+def posts(request):
+    return render(request, 'posts/posts(main).html')

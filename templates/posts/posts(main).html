@@ -1,0 +1,25 @@
+{% extends 'shared/base.html' %}
+{% load static %}
+
+{% block header_scripts %}
+{#    <script src="{% static 'js/custom.js' %}" defer></script>#}
+    <script src="{% static 'js/for_posts.js' %}" defer></script>
+{% endblock %}
+{% block title %}
+    main posts
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div id="spinner-box">
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block footer_scripts %}
+
+{% endblock %}
