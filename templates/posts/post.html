@@ -3,7 +3,7 @@
 
 {% block header_scripts %}
     <script src="{% static 'js/custom.js' %}" defer></script>
-{#    <script src="{% static 'js/main.js' %}" defer></script>#}
+    {#    <script src="{% static 'js/main.js' %}" defer></script>#}
 {% endblock %}
 {% block title %}
     posts
@@ -14,6 +14,30 @@
             {% for post in posts %}
                 <h3>{{ post.title }} -{{ post.body }}</h3>
             {% endfor %}
+        </div>
+        <hr>
+        <div class="col-md-12">
+            <h3>hello data</h3>
+            <p>------------------------</p>
+            <div id="hello">
+
+            </div>
+        </div>
+        <hr>
+        <div class="col-md-12">
+            <h3>send data one</h3>
+            <p>------------------------</p>
+            <div id="data-one">
+
+            </div>
+        </div>
+        <hr>
+        <div class="col-md-12">
+            <h3>send data two</h3>
+            <p>------------------------</p>
+            <div id="data-two">
+
+            </div>
         </div>
     </div>
 
