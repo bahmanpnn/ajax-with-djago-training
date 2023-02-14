@@ -1,0 +1,23 @@
+{% extends 'shared/base.html' %}
+{% load static %}
+
+{% block header_scripts %}
+    <script src="{% static 'js/custom.js' %}" defer></script>
+{#    <script src="{% static 'js/main.js' %}" defer></script>#}
+{% endblock %}
+{% block title %}
+    posts
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for post in posts %}
+                <h3>{{ post.title }} -{{ post.body }}</h3>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
+{% block footer_scripts %}
+
+{% endblock %}
