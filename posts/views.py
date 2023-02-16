@@ -43,7 +43,8 @@ def send_data_two(request, **kwargs):
             'id': post.id,
             'body': post.body,
             'title': post.title,
-            # 'liked': True if request.user in post.liked.all() else False,
+            'liked': True if request.user in post.liked.all() else False,
+            'count': post.like_count,
             'author': post.author.user.username
         }
         data.append(item)
