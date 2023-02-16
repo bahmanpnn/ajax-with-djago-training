@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block header_scripts %}
-{#    <script src="{% static 'js/custom.js' %}" defer></script>#}
+    {#    <script src="{% static 'js/custom.js' %}" defer></script>#}
     <script src="{% static 'js/for_posts.js' %}" defer></script>
 {% endblock %}
 {% block title %}
@@ -10,12 +10,20 @@
 {% endblock %}
 {% block content %}
     <div class="row">
+        <div id="post-box">
+
+        </div>
+
         <div id="spinner-box">
             <div class="d-flex justify-content-center">
                 <div class="spinner-border" role="status">
                     <span class="sr-only"></span>
                 </div>
             </div>
+        </div>
+
+        <div class="text-center mb-3" id="end-box">
+            <button class="btn btn-primary" id="load-btn">load more</button>
         </div>
     </div>
 

@@ -29,19 +29,26 @@ def send_data_one(request):
 
 
 # send object-array
-def send_data_two(request):
+def send_data_two(request, **kwargs):
+    # except kwargs we can use n_post straight but for more learning and exprience i use **kwargs
+    n_post = kwargs.get('n_post')
+    visible = 3
+    upper = n_post
+    lower = upper - visible
     posts = Post.objects.all()
+    size = posts.count()
     data = []
     for post in posts:
         item = {
             'id': post.id,
             'body': post.body,
             'title': post.title,
+            # 'liked': True if request.user in post.liked.all() else False,
             'author': post.author.user.username
         }
         data.append(item)
     return JsonResponse({
-        'data': data
+        'data': data[lower:upper], 'size': size
     })
 
 
