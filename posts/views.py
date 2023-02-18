@@ -53,5 +53,18 @@ def send_data_two(request, **kwargs):
     })
 
 
+def like_unlike_post(request):
+    if request.POST:
+        pk = request.POST.get('pk')
+        target_post = Post.objects.get(pk=pk)
+        if request.user in target_post.liked.all():
+            liked = False
+            target_post.liked.remove(request.user)
+        else:
+            liked = True
+            target_post.liked.add(request.user)
+        return JsonResponse({'liked': liked, 'count': target_post.like_count})
+
+
 def posts(request):
     return render(request, 'posts/posts(main).html')

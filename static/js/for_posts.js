@@ -3,6 +3,49 @@ const postBox = document.getElementById('post-box')
 const loadBtn = document.getElementById('load-btn')
 const endBox = document.getElementById('end-box')
 
+const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+// const csrftoken = Cookies.get('csrftoken');
+
+const likeUnlikePost = () => {
+    const likeUnlikeForms = [...document.getElementsByClassName('like-unlike-forms')]
+    likeUnlikeForms.forEach(form => form.addEventListener('submit', e => {
+        e.preventDefault()
+        const clickedId = e.target.getAttribute('data-form-id')
+        const clickedBtn = document.getElementById(`like-unlike-${clickedId}`)
+        $.ajax({
+            type: 'POST',
+            url: "like_unlike",
+            // headers: {'X-CSRFToken': csrftoken},
+            data: {
+                'csrfmiddlewaretoken': csrftoken,
+                'pk': clickedId,
+            },
+            success: function (resp) {
+                console.log(resp)
+                clickedBtn.textContent = resp.liked ? `Unlike(${resp.count})` : `Like(${resp.count})`
+            },
+            error: function (error) {
+                console.log(error)
+            }
+        })
+    }))
+}
 let visible = 3
 const getData = function () {
     $.ajax({
@@ -13,6 +56,7 @@ const getData = function () {
                 spinner.classList.add('not-visible')
             }, 500)
             const data = response.data
+            console.log(data)
             data.forEach((element) => {
                 postBox.innerHTML += `
             <div class="card text-center mb-3">
@@ -30,15 +74,18 @@ const getData = function () {
                         <a href="#" class="btn btn-primary">details</a>
                     </div>
                     <div class="col-1">
-                        <a href="#" class="btn btn-danger">${element.liked ? `Unlike(${element.count})` : `Like(${element.count})`}</a>
+                    <form class="like-unlike-forms" data-form-id="${element.id}">
+                        <button class="btn btn-danger" id="like-unlike-${element.id}">
+${element.liked ? `Unlike(${element.count})` : `Like(${element.count})`}
+                        </button>
+                    </form>
                     </div>
                 </div>
               </div>
             </div>
             `
             })
-
-            console.log(response.size)
+            likeUnlikePost()
             if (response.size === 0) {
                 endBox.textContent = 'no post added yet!!'
             } else if (response.size <= visible) {
