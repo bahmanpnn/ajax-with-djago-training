@@ -3,6 +3,13 @@
 
 {% block header_scripts %}
     {#    <script src="{% static 'js/custom.js' %}" defer></script>#}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
     <script src="{% static 'js/for_posts.js' %}" defer></script>
 {% endblock %}
 {% block title %}
@@ -10,6 +17,36 @@
 {% endblock %}
 {% block content %}
     <div class="row">
+
+        <!-- Modal -->
+        <div class="modal fade" id="addPostModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">create post</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="button" class="btn btn-success">add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn mb-3 btn-info btn-lg btn-block" data-bs-toggle="modal"
+                data-bs-target="#addPostModal">
+            add post
+        </button>
+        <!-- next -->
         <div id="post-box">
 
         </div>
