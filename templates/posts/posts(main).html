@@ -1,5 +1,6 @@
 {% extends 'shared/base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 
 {% block header_scripts %}
     {#    <script src="{% static 'js/custom.js' %}" defer></script>#}
@@ -30,14 +31,18 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        ...
+                        <form method="post" id="post-form">
+                            {% csrf_token %}
+                            {{ form | crispy}}
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger"
+                                        data-bs-dismiss="modal">Close
+                                </button>
+                                <button type="submit" class="btn btn-success">add</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                            Close
-                        </button>
-                        <button type="button" class="btn btn-success">add</button>
-                    </div>
+
                 </div>
             </div>
         </div>

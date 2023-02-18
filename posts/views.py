@@ -3,6 +3,8 @@ from django.shortcuts import render
 from django.core import serializers
 # Create your views here.
 from posts.models import Post
+from .forms import AddPostForm
+from profiles.models import Profile
 
 
 def post_list(request):
@@ -67,4 +69,15 @@ def like_unlike_post(request):
 
 
 def posts(request):
-    return render(request, 'posts/posts(main).html')
+    form = AddPostForm(request.POST or None)
+    if request.POST:
+        if form.is_valid():
+            # if request.user.is_authenticated:
+            author = Profile.objects.get(user=request.user)
+            instance = form.save(commit=False)
+            instance.author = author
+            instance.save()
+    context = {
+        'form': form
+    }
+    return render(request, 'posts/posts(main).html', context)
