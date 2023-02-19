@@ -18,7 +18,7 @@
 {% endblock %}
 {% block content %}
     <div class="row">
-
+        <div id="alert-box"></div>
         <!-- Modal -->
         <div class="modal fade" id="addPostModal" tabindex="-1" aria-labelledby="exampleModalLabel"
              aria-hidden="true">
@@ -33,7 +33,7 @@
                     <div class="modal-body">
                         <form method="post" id="post-form">
                             {% csrf_token %}
-                            {{ form | crispy}}
+                            {{ form | crispy }}
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-danger"
                                         data-bs-dismiss="modal">Close

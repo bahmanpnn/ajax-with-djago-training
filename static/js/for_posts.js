@@ -105,6 +105,64 @@ loadBtn.addEventListener('click', () => {
     getData()
 })
 
+//create post form(modal)that is in html
+const postForm = document.getElementById('post-form')
+const formTitle = document.getElementById('id_title')
+const formBody = document.getElementById('id_body')
+const csrf = document.getElementsByName('csrfmiddlewaretoken')
+
+const alertbox = document.getElementById('alert-box')
+// console.log(csrf[0].value)
+postForm.addEventListener('submit', e => {
+    e.preventDefault()
+    $.ajax({
+        type: 'POST',
+        url: '',
+        data: {
+            'csrfmiddlewaretoken': csrf[0].value,
+            'title': formTitle.value,
+            'body': formBody.value
+        },
+        success: function (response) {
+            console.log(response)
+            postBox.insertAdjacentHTML('afterbegin', `
+                            <div class="card text-center mb-3">
+              <div class="card-header">
+                ${response.id}
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">${response.title}</h5>
+                <p class="card-text">${response.body}</p>
+
+              </div>
+              <div class="card-footer">
+                <div class="row justify-content-center">
+                    <div class="col-1">
+                        <a href="#" class="btn btn-primary">details</a>
+                    </div>
+                    <div class="col-1">
+                    <form class="like-unlike-forms" data-form-id="${response.id}">
+                        <button class="btn btn-danger" id="like-unlike-${response.id}">
+${response.liked ? `Unlike` : `Like(0)`}
+                        </button>
+                    </form>
+                    </div>
+                </div>
+              </div>
+            </div>
+                `)
+            likeUnlikePost()
+            $('#addPostModal').modal('hide')
+            alertsHandle('success', 'new post added!!')
+            postForm.reset()
+        },
+        error: function (error) {
+            console.log(error)
+            alertsHandle('danger', 'oops!! somthing went wrong!!')
+        }
+
+    })
+})
 getData()
 
 // ------------------------------------------------------------------------------------ main way :/

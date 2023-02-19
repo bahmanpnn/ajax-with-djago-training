@@ -30,6 +30,9 @@ def send_data_one(request):
     })
 
 
+# -------------------------------------------------------------------------
+# main project
+
 # send object-array
 def send_data_two(request, **kwargs):
     # except kwargs we can use n_post straight but for more learning and exprience i use **kwargs
@@ -77,6 +80,12 @@ def posts(request):
             instance = form.save(commit=False)
             instance.author = author
             instance.save()
+            return JsonResponse({
+                'title': instance.title,
+                'body': instance.body,
+                'author': instance.author.user.username,
+                'id': instance.id,
+            })
     context = {
         'form': form
     }
