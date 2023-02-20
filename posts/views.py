@@ -90,3 +90,13 @@ def posts(request):
         'form': form
     }
     return render(request, 'posts/posts(main).html', context)
+
+
+def detail_post(request, pk):
+    post = Post.objects.get(pk=pk)
+    form = AddPostForm()
+    context = {
+        'form': form,
+        'post': post
+    }
+    return render(request, 'posts/detail_post.html', context)

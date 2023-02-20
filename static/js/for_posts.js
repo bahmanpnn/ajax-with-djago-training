@@ -2,6 +2,10 @@ const spinner = document.getElementById('spinner-box')
 const postBox = document.getElementById('post-box')
 const loadBtn = document.getElementById('load-btn')
 const endBox = document.getElementById('end-box')
+const pageUrl = window.location.href
+console.log(pageUrl)
+
+
 
 const getCookie = (name) => {
     let cookieValue = null;
@@ -71,7 +75,7 @@ const getData = function () {
               <div class="card-footer">
                 <div class="row justify-content-center">
                     <div class="col-1">
-                        <a href="#" class="btn btn-primary">details</a>
+                        <a href="${pageUrl}/${element.id}" class="btn btn-primary">details</a>
                     </div>
                     <div class="col-1">
                     <form class="like-unlike-forms" data-form-id="${element.id}">
@@ -138,7 +142,7 @@ postForm.addEventListener('submit', e => {
               <div class="card-footer">
                 <div class="row justify-content-center">
                     <div class="col-1">
-                        <a href="#" class="btn btn-primary">details</a>
+                        <a href="${pageUrl}/${response.id}" class="btn btn-primary">details</a>
                     </div>
                     <div class="col-1">
                     <form class="like-unlike-forms" data-form-id="${response.id}">
