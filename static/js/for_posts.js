@@ -3,7 +3,7 @@ const postBox = document.getElementById('post-box')
 const loadBtn = document.getElementById('load-btn')
 const endBox = document.getElementById('end-box')
 const pageUrl = window.location.href
-console.log(pageUrl)
+// console.log(pageUrl)
 
 
 

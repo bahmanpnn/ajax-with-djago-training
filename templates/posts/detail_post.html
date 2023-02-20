@@ -1,14 +1,26 @@
 {% extends 'shared/base.html' %}
-{% block header_scripts %}
+{% load static %}
 
+{% block header_scripts %}
+    <script src="{% static 'js/detail_post.js' %}" defer></script>
+    {#    <script src="/static/js/detail_post.js"></script>#}
 {% endblock %}
-{% block title %}
-    {{ post.title }} details
-{% endblock %}
+{% block title %}{{ post.title }} details{% endblock %}
 {% block content %}
-    {{ post.id }}
-    <hr>
-    {{ post.body }}
+    <button id="back-btn" class="btn btn-info">back to posts</button>
+    <button id="update-btn" class="btn btn-primary">update</button>
+    <button id="delete-btn" class="btn btn-danger">delete</button>
+    <div id="spinner-box">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+    </div>
+    <div class="mt-1" id="post-box"></div>
+    {#    {{ post.id }}#}
+    {#    <hr>#}
+    {#    {{ post.body }}#}
 {% endblock %}
 {% block footer_scripts %}
 
