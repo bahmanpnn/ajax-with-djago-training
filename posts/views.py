@@ -100,3 +100,15 @@ def detail_post(request, pk):
         'post': post
     }
     return render(request, 'posts/detail_post.html', context)
+
+
+def detail_post_data(request, pk):
+    post = Post.objects.get(pk=pk)
+    data = {
+        'id': post.id,
+        'title': post.title,
+        'body': post.body,
+        'author': post.author.user.username,
+        'logged_in': request.user.username
+    }
+    return JsonResponse({'data': data})
