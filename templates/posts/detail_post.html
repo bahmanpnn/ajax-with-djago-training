@@ -29,17 +29,17 @@
                 </div>
                 <div class="modal-body">
                     <p>are you sure to delete <b>{{ post.title }}</b>?!</p>
-                    <form method="post" id="delete-form">
-                        {% csrf_token %}
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger"
-                                    data-bs-dismiss="modal">Close
-                            </button>
-                            <button type="submit" class="btn btn-success">delete</button>
-                        </div>
-                    </form>
                 </div>
 
+                <div class="modal-footer">
+                    <form method="post" id="delete-form">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-danger"
+                                data-bs-dismiss="modal">Close
+                        </button>
+                        <button type="submit" class="btn btn-success">delete</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

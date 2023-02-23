@@ -112,3 +112,21 @@ def detail_post_data(request, pk):
         'logged_in': request.user.username
     }
     return JsonResponse({'data': data})
+
+
+def update_post(request, pk):
+    if request.POST:
+        target_post = Post.objects.get(pk=pk)
+        new_title = request.POST.get('title')
+        new_body = request.POST.get('body')
+        target_post.title = new_title
+        target_post.body = new_body
+        target_post.save()
+        return JsonResponse({'title': new_title, 'body': new_body, 'status': 'post updated'})
+
+
+def delete_post(request, pk):
+    if request.POST:
+        target_post = Post.objects.get(pk=pk)
+        target_post.delete()
+        return JsonResponse({'status': 'post deleted!!'})
