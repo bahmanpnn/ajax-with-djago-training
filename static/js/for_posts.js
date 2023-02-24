@@ -6,7 +6,6 @@ const pageUrl = window.location.href
 // console.log(pageUrl)
 
 
-
 const getCookie = (name) => {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -26,6 +25,7 @@ const getCookie = (name) => {
 const csrftoken = getCookie('csrftoken');
 // const csrftoken = Cookies.get('csrftoken');
 
+//
 const likeUnlikePost = () => {
     const likeUnlikeForms = [...document.getElementsByClassName('like-unlike-forms')]
     likeUnlikeForms.forEach(form => form.addEventListener('submit', e => {
@@ -169,6 +169,13 @@ ${response.liked ? `Unlike` : `Like(0)`}
 })
 getData()
 
+//deleted alert
+const postDeleted = localStorage.getItem('deletedTitle')
+if (postDeleted) {
+    console.log('deleted')
+    alertsHandle('danger', `the "${postDeleted}" deleted!!`)
+    localStorage.clear()
+}
 // ------------------------------------------------------------------------------------ main way :/
 
 
