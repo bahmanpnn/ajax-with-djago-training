@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post
+from .models import Post, PhotoPost
 
 
 # Register your models here.
@@ -8,3 +8,4 @@ class PostsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Post, PostsAdmin)
+admin.site.register(PhotoPost)
