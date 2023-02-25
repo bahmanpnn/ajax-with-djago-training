@@ -156,9 +156,9 @@ ${response.liked ? `Unlike` : `Like(0)`}
             </div>
                 `)
             likeUnlikePost()
-            $('#addPostModal').modal('hide')
+            // $('#addPostModal').modal('hide')
+            // postForm.reset()
             alertsHandle('success', 'new post added!!')
-            postForm.reset()
         },
         error: function (error) {
             console.log(error)
@@ -167,7 +167,6 @@ ${response.liked ? `Unlike` : `Like(0)`}
 
     })
 })
-getData()
 
 //deleted alert
 const postDeleted = localStorage.getItem('deletedTitle')
@@ -176,6 +175,25 @@ if (postDeleted) {
     alertsHandle('danger', `the "${postDeleted}" deleted!!`)
     localStorage.clear()
 }
+//edit forms for dropzone
+const myDropzone=document.getElementById('my-dz')
+const addBtn=document.getElementById('add-btn')
+const closeBtn=[...document.getElementsByClassName('add-modal-close')]
+
+//show dropzone after post added to drop target images in that zone to add
+addBtn.addEventListener('click',()=>{
+    myDropzone.classList.remove('not-visible')
+})
+//add again not-visible class to dropzone divison to when add post uses again we cant see dropzone
+closeBtn.forEach(btn=>btn.addEventListener('click',()=>{
+    postForm.reset()
+    if (!myDropzone.classList.contains('not-visible')){
+        myDropzone.classList.add('not-visble')
+    }
+}))
+
+//
+getData()
 // ------------------------------------------------------------------------------------ main way :/
 
 
