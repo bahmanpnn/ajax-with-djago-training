@@ -1,8 +1,8 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.core import serializers
 # Create your views here.
-from posts.models import Post
+from posts.models import Post, PhotoPost
 from .forms import AddPostForm
 from profiles.models import Profile
 
@@ -34,8 +34,9 @@ def send_data_one(request):
 # main project
 
 # send object-array
+# def send_data_two(request,n_post):
+# except kwargs we can use n_post directly but for more learning and exprience i use **kwargs
 def send_data_two(request, **kwargs):
-    # except kwargs we can use n_post straight but for more learning and exprience i use **kwargs
     n_post = kwargs.get('n_post')
     visible = 3
     upper = n_post
@@ -130,3 +131,14 @@ def delete_post(request, pk):
         target_post = Post.objects.get(pk=pk)
         target_post.delete()
         return JsonResponse({'status': 'post deleted!!'})
+
+
+def image_upload(request):
+    print(request.FILES)
+    # if request.POST:
+    if request.method == 'POST':
+        img = request.FILES.get('file')
+        new_post_id = request.POST.get('new_post_id')
+        target_post = Post.objects.get(id=new_post_id)
+        PhotoPost.objects.create(image=img, post=target_post)
+    return HttpResponse()
