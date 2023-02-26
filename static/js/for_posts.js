@@ -115,6 +115,9 @@ const formTitle = document.getElementById('id_title')
 const formBody = document.getElementById('id_body')
 const csrf = document.getElementsByName('csrfmiddlewaretoken')
 
+// this is for send post id for add images in dropzone that need id to send form to view
+let newPostId = null
+
 const alertbox = document.getElementById('alert-box')
 // console.log(csrf[0].value)
 postForm.addEventListener('submit', e => {
@@ -129,6 +132,7 @@ postForm.addEventListener('submit', e => {
         },
         success: function (response) {
             console.log(response)
+            newPostId = response.id
             postBox.insertAdjacentHTML('afterbegin', `
                             <div class="card text-center mb-3">
               <div class="card-header">
@@ -176,21 +180,41 @@ if (postDeleted) {
     localStorage.clear()
 }
 //edit forms for dropzone
-const myDropzone=document.getElementById('my-dz')
-const addBtn=document.getElementById('add-btn')
-const closeBtn=[...document.getElementsByClassName('add-modal-close')]
+const myDropzone = document.getElementById('my-dz')
+const addBtn = document.getElementById('add-btn')
+const closeBtn = [...document.getElementsByClassName('add-modal-close')]
 
 //show dropzone after post added to drop target images in that zone to add
-addBtn.addEventListener('click',()=>{
+addBtn.addEventListener('click', () => {
     myDropzone.classList.remove('not-visible')
 })
 //add again not-visible class to dropzone divison to when add post uses again we cant see dropzone
-closeBtn.forEach(btn=>btn.addEventListener('click',()=>{
+closeBtn.forEach(btn => btn.addEventListener('click', () => {
     postForm.reset()
-    if (!myDropzone.classList.contains('not-visible')){
+    if (!myDropzone.classList.contains('not-visible')) {
         myDropzone.classList.add('not-visble')
     }
 }))
+
+// limitation for dropzone
+
+Dropzone.autoDiscover = false
+//if we dont set this dropzone.autodiscover=false try atach files twice or more!
+// dropzone is from main dropzone js file that next line we create obj form it.
+const dropzone = new Dropzone('#my-dz', {
+    url: 'image-upload',
+    init: function () {
+        this.on('sending', function (file, xhr, formData) {
+            formData.append('csrfmiddlewaretoken', csrftoken)
+            formData.append('new_post_id', newPostId)
+        })
+    },
+    maxFiles: 5,
+    maxFilesize: 4,
+    acceptedFiles: '.png ,.jpg, .jpeg'
+})
+//todo:next time set condition to if form filled(and drop images for it) dont add again that
+// data(title and body) and alert error or nothing and block to add data to dont let add data twice
 
 //
 getData()
