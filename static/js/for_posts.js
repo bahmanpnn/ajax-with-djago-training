@@ -188,16 +188,21 @@ const closeBtn = [...document.getElementsByClassName('add-modal-close')]
 addBtn.addEventListener('click', () => {
     myDropzone.classList.remove('not-visible')
 })
+
+
 //add again not-visible class to dropzone divison to when add post uses again we cant see dropzone
 closeBtn.forEach(btn => btn.addEventListener('click', () => {
     postForm.reset()
     if (!myDropzone.classList.contains('not-visible')) {
-        myDropzone.classList.add('not-visble')
+        myDropzone.classList.add('not-visible')
+        const dz = Dropzone.forElement('#my-dz')
+        dz.removeAllFiles(true)
     }
+
+
 }))
 
 // limitation for dropzone
-
 Dropzone.autoDiscover = false
 //if we dont set this dropzone.autodiscover=false try atach files twice or more!
 // dropzone is from main dropzone js file that next line we create obj form it.
@@ -209,15 +214,16 @@ const dropzone = new Dropzone('#my-dz', {
             formData.append('new_post_id', newPostId)
         })
     },
-    maxFiles: 5,
+    maxFiles: 3,
     maxFilesize: 4,
     acceptedFiles: '.png ,.jpg, .jpeg'
 })
 //todo:next time set condition to if form filled(and drop images for it) dont add again that
 // data(title and body) and alert error or nothing and block to add data to dont let add data twice
 
-//
 getData()
+
+
 // ------------------------------------------------------------------------------------ main way :/
 
 

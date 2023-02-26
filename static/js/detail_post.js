@@ -1,12 +1,12 @@
-const backBtn = document.getElementById('back-btn')
+// const backBtn = document.getElementById('back-btn')
 const updateBtn = document.getElementById('update-btn')
 const deleteBtn = document.getElementById('delete-btn')
 const postBox = document.getElementById('post-box')
 const alertbox = document.getElementById('alert-box')
 
-backBtn.addEventListener('click', function () {
-    history.back()
-})
+// backBtn.addEventListener('click', function () {
+//     history.back()
+// })
 
 //get and show/update/delete detail post data
 const pageUrl = window.location.href + "/data"
