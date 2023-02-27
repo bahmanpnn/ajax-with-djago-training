@@ -18,7 +18,22 @@
     profile dashboard
 {% endblock %}
 {% block content %}
-    <div>
-        <p>profile</p>
+    <div id="alert-box"></div>
+    <h3>{{ user.user }}</h3>
+    <hr>
+    <div class="text-center" id="avatar-box">
+        {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="{{ user.user.username }}" class="rounded"
+                 height="200px" width="auto">
+        {% else %}
+            <img src="{% static 'uploads/images/avatar_profile/avatar.jpg' %}" alt=
+                    "{{ user.user.username }}" class="rounded" height="200px" width="auto">
+        {% endif %}
     </div>
+    <form id="profile-form" action="">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary mt-3 mb-3">save</button>
+    </form>
+
 {% endblock %}
