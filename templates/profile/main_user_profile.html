@@ -22,9 +22,11 @@
     <h3>{{ user.user }}</h3>
     <hr>
     <div class="text-center" id="avatar-box">
+        {#        <img src="{{ user.avatar.url }}" alt="{{ user.user.username }}" class="rounded"#}
+        {#             height="300px" width="auto">#}
         {% if user.avatar %}
             <img src="{{ user.avatar.url }}" alt="{{ user.user.username }}" class="rounded"
-                 height="200px" width="auto">
+                 height="300px" width="auto">
         {% else %}
             <img src="{% static 'uploads/images/avatar_profile/avatar.jpg' %}" alt=
                     "{{ user.user.username }}" class="rounded" height="200px" width="auto">
