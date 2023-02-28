@@ -5,6 +5,8 @@ from django.core import serializers
 from posts.models import Post, PhotoPost
 from .forms import AddPostForm
 from profiles.models import Profile
+# decorators
+from django.contrib.auth.decorators import login_required
 from .utils import action_permission
 
 
@@ -60,6 +62,7 @@ def send_data_two(request, **kwargs):
     })
 
 
+@login_required
 def like_unlike_post(request):
     if request.POST:
         pk = request.POST.get('pk')
@@ -73,6 +76,7 @@ def like_unlike_post(request):
         return JsonResponse({'liked': liked, 'count': target_post.like_count})
 
 
+@login_required
 def posts(request):
     form = AddPostForm(request.POST or None)
     if request.POST:
@@ -116,6 +120,8 @@ def detail_post_data(request, pk):
     return JsonResponse({'data': data})
 
 
+@login_required
+@action_permission
 def update_post(request, pk):
     if request.POST:
         target_post = Post.objects.get(pk=pk)
@@ -127,6 +133,7 @@ def update_post(request, pk):
         return JsonResponse({'title': new_title, 'body': new_body, 'status': 'post updated'})
 
 
+@login_required
 @action_permission
 def delete_post(request, pk):
     if request.POST:
@@ -136,6 +143,7 @@ def delete_post(request, pk):
     return JsonResponse({'status': 'access denied!!'})
 
 
+@login_required
 def image_upload(request):
     print(request.FILES)
     # if request.POST:

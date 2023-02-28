@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -6,6 +7,7 @@ from .models import Profile
 from .forms import UserProfileForm
 
 
+@login_required
 def profile_page(request):
     user = Profile.objects.get(user=request.user)
     form = UserProfileForm(request.POST or None, request.FILES or None, instance=user)
