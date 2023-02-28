@@ -1,0 +1,1184 @@
+#13 ajax call
+#baraye get kardane data hayi ke be yek address ersal mishavand ebteda ye func minevisim ke Json return mikone be oon url e morede nazar
+
+#badesh dar js be komake ajax get mikonim va url e oon view ro ham midim intori be oon data dastrasi darim
+
+----view and response
+def hello_data(request):
+    posts = list(Post.objects.values())
+    return JsonResponse({
+        'posts': posts
+    })
+
+--js
+$.ajax({
+    type: 'GET',
+    url: 'hello-data',
+    success: function (resp) {
+        console.log('ersponse=', resp)
+        myContent = resp['posts'][0]['title']
+        hello.innerHTML='<h1>first query title is= '+myContent+'</h1>'
+    },
+    error: function (error) {
+        console.log('error= ', error)
+    }
+})
+
+------------------------------------------------------------------------------------------------------------
+
+#14 2 ravesh baraye ersale data e query be soorate json
+
+def send_data_one(request):
+    posts = Post.objects.all()
+    data = serializers.serialize('json', posts)
+    return JsonResponse({
+        'posts': data
+    })
+
+
+def send_data_two(request):
+    posts = Post.objects.all()
+    data = []
+    for post in posts:
+        item = {
+            'id': post.id,
+            'body': post.body,
+            'title': post.title,
+            'author': post.author.user.username
+        }
+        data.append(item)
+    return JsonResponse({
+        'data': data
+    })
+
+---js
+
+const dataOne = document.getElementById('data-one')
+$.ajax({
+    type: 'GET',
+    url: 'send-data-one',
+    success: function (res) {
+	  // console.log('send data response is= ', res.posts)  //object-dic
+        // console.log('send data response is= ', res.posts)  //string
+        const data = JSON.parse(res.posts)  //object-json(dic)
+        console.log('dataone is=', data[0]['fields'])
+        for (let i = 0; i < data.length; i++) {
+            dataOne.innerHTML += `
+            <p>${data[i]['fields']['title']} - ${data[i]['fields']['body']}</p><br>
+            `
+        }
+    },
+    error: function (err) {
+        console.log('send data error is= ', err)
+    }
+})
+
+const dataTwo = document.getElementById('data-two')
+$.ajax({
+    type: 'GET',
+    url: 'send-data-two',
+    success: function (response) {
+        // console.log('send data two is=', response)  //object-array
+        const data = response.data
+        data.forEach(ele => {
+            dataTwo.innerHTML += `
+        ${ele.title} - <b>${ele.body}</b><br>
+        `
+        })
+    },
+    error: function (error) {
+        console.log(error)
+    }
+})
+
+--------------------------------------------------------------------------------------------------------------
+
+#15 adding spinner
+az bootsrap komak migirim va ye spinner dar html ezaaafe mikonim va dar js ham set mikonim bade load shodane data masalan class e display:none begire va hidden beshe.man inja vali oon div ke spinner dare ro khali kardam ba js->innerhtml=""
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#16 adding cards
+kare khasi nabood fgahat html o css e more nazaresh ro ke az ghesmate bootstrap 5 card copy kardim vase innerhtml e postbox e js paste kardim va element haye item haro set kardim(id,author o in chiza)ke dar code jalase bad ghabele didane
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#17 loading more post with js and button
+#url
+path('send-data-two/<int:n_post>', send_data_two, name='send-data-two'),
+----
+#view
+def send_data_two(request, **kwargs):
+    # except kwargs we can use n_post straight but for more learning and exprience i use **kwargs
+    n_post = kwargs.get('n_post')
+    visible = 3
+    upper = n_post
+    lower = upper - visible
+    posts = Post.objects.all()
+    size = posts.count()
+    data = []
+    for post in posts:
+        item = {
+            'id': post.id,
+            'body': post.body,
+            'title': post.title,
+            # 'liked': True if request.user in post.liked.all() else False,
+            'author': post.author.user.username
+        }
+        data.append(item)
+    return JsonResponse({
+        'data': data[lower:upper], 'size': size
+    })
+-----
+#html
+<div class="row">
+        <div id="post-box">
+
+        </div>
+
+        <div id="spinner-box">
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-3" id="end-box">
+            <button class="btn btn-primary" id="load-btn">load more</button>
+        </div>
+</div>
+------
+#js
+const spinner = document.getElementById('spinner-box')
+const postBox = document.getElementById('post-box')
+const loadBtn = document.getElementById('load-btn')
+const endBox = document.getElementById('end-box')
+
+let visible = 3
+const getData = function () {
+    $.ajax({
+        type: 'GET',
+        url: `send-data-two/${visible}`,
+        success: function (response) {
+            setTimeout(() => {
+                spinner.classList.add('not-visible')
+            }, 500)
+            const data = response.data
+            data.forEach((element) => {
+                postBox.innerHTML += `
+            <div class="card text-center mb-3">
+              <div class="card-header">
+                ${element.id}
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">${element.title}</h5>
+                <p class="card-text">${element.body}</p>
+
+              </div>
+              <div class="card-footer">
+                <div class="row justify-content-center">
+                    <div class="col-1">
+                        <a href="#" class="btn btn-primary">details</a>
+                    </div>
+                    <div class="col-1">
+                        <a href="#" class="btn btn-primary">likes</a>
+                    </div>
+                </div>
+              </div>
+            </div>
+            `
+            })
+
+            console.log(response.size)
+            if (response.size === 0) {
+                endBox.textContent = 'no post added yet!!'
+            } else if (response.size <= visible) {
+                loadBtn.classList.add('not-visible')
+                endBox.textContent = 'there is no more posts to load!!'
+            }
+        },
+        error: function (error) {
+            console.log(error)
+        }
+    })
+}
+
+loadBtn.addEventListener('click', () => {
+    spinner.classList.remove('not-visible')
+    visible += 3
+    getData()
+})
+
+getData()
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#18 like button with ajax
+
+#avalesh dar modele post ha ye method a jense property tarif mikonim ta return esh field bashe
+    @property
+    def like_count(self):
+        return self.liked.all().count()
+
+#badesh dakhele view ha dar item ee ke yek dictionary hast va mikhaym append konim liked_count ham set mikonim ta ba dar file json ersal beshe
+
+#hala bayad dakhele oon card ke dakhele innerhtml gharar dadim liked count ro va hamintor liked/unliked ro be soorati if gharar bedim->
+
+<a href="#" class="btn btn-danger">${element.liked ? `Unlike(${element.count})` : `Like(${element.count})`}</a>
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#19 like button with ajax-2
+#ebteda form e html ro doros mikonim.chon form ro dakhele innerhtml darim doros mikonim csrf token doros anjam nemishe vase hamin bayad dar file js ye function e makhsoos ke dar document ham vojood dare paste koni ta doros beshe->
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#20 modal for adding a post
+#copy paste modal live demo in posts html
+<!-- Modal -->
+        <div class="modal fade" id="addPostModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">create post</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ...
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="button" class="btn btn-success">add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+<!-- Button trigger modal -->
+        <button type="button" class="btn btn-info mb-3" data-bs-toggle="modal"
+                data-bs-target="#addPostModal">
+            add post
+        </button>
+<!-- Button trigger modal -->
+
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#21 add a form to modal adding post
+# aval file forms ro doros mikonim va class esh ro doros mikonim->
+
+class AddPostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        # fields = ['title', 'body'] ->it does not matter with [] or ()
+        fields = ('title', 'body')
+
+#hala bayad dar view be context pass bedimesh ->
+    form = AddPostForm(request.POST or None)
+    if request.POST:
+        if form.is_valid():
+            # if request.user.is_authenticated:
+            author = Profile.objects.get(user=request.user)
+            instance = form.save(commit=False)
+            instance.author = author
+            instance.save()
+    context = {
+        'form': form
+    }
+
+#hala ham bayad az 3rd party e crispy estefade konim ta form ro be khubi neshoon bede albate bejaye in mitoonim bejaye model form az form e saade estefade konim ta attr o  widget ina bedim->
+
+--settings
+installed apps-> 'crispy_forms' -> add mikonim dar install app ha
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+--html
+{% load crispy_forms_tags %}
+<div class="modal-body">
+	<form method="post" id="post-form">
+		{% csrf_token %}
+		{{ form | crispy}}
+		<div class="modal-footer">
+			<button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+			<button type="submit" class="btn btn-success">add</button>
+		</div>
+	</form>
+</div>
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#22 create post with ajax
+#ebteda khode modal ee ke gharar dadim dar hrml; form o title o body ro migirim ta ba listener o ajax pass bedim be view e create post ta post ijaad beshe->
+
+const postForm = document.getElementById('post-form')
+const title = document.getElementById('id_title')
+const body = document.getElementById('id_body')
+const csrf = document.getElementsByName('csrfmiddlewaretoken')
+// console.log(csrf[0].value)
+--
+postForm.addEventListener('submit', e => {
+    e.preventDefault()
+    $.ajax({
+        type: 'POST',
+        url: '',
+        data: {
+            'csrfmiddlewaretoken': csrf[0].value,
+            'title': formTitle.value,
+            'body': formBody.value
+        },
+        success: function (response) {
+            console.log(response)
+        },
+        error: function (error) {
+            console.log(error)
+        }
+
+    })
+})
+--- hala bayad yekar konim ke post add shode az bala neshoon dade beshe pas be model e post ha bayad ino add konim->
+class Meta:
+	ordering = ('-created',)  # remember that is tuple!!
+
+-----
+#hala baraye add shodane hamzaman dar html o front bade add shodan va bedoone reload kardane page bayad dar view yek jsonresponse befrestim ta bade add js karhasho bokone->
+
+def posts(request):
+    form = AddPostForm(request.POST or None)
+    if request.POST:
+        if form.is_valid():
+            # if request.user.is_authenticated:
+            author = Profile.objects.get(user=request.user)
+            instance = form.save(commit=False)
+            instance.author = author
+            instance.save()
+
+            return JsonResponse({
+                'title': instance.title,
+                'body': instance.body,
+                'author': instance.author.user.username,
+                'id': instance.id,
+            })
+
+    context = {
+        'form': form
+    }
+    return render(request, 'posts/posts(main).html', context)
+
+-----js baraye add kardane hamzaman e poste add shode.
+
+postForm.addEventListener('submit', e => {
+    e.preventDefault()
+    $.ajax({
+        type: 'POST',
+        url: '',
+        data: {
+            'csrfmiddlewaretoken': csrf[0].value,
+            'title': formTitle.value,
+            'body': formBody.value
+        },
+        success: function (response) {
+            console.log(response)
+            postBox.insertAdjacentHTML('afterbegin', `
+                            <div class="card text-center mb-3">
+              <div class="card-header">
+                ${response.id}
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">${response.title}</h5>
+                <p class="card-text">${response.body}</p>
+
+              </div>
+              <div class="card-footer">
+                <div class="row justify-content-center">
+                    <div class="col-1">
+                        <a href="#" class="btn btn-primary">details</a>
+                    </div>
+                    <div class="col-1">
+                    <form class="like-unlike-forms" data-form-id="${response.id}">
+                        <button class="btn btn-danger" id="like-unlike-${response.id}">
+${response.liked ? `Unlike` : `Like(0)`}
+                        </button>
+                    </form>
+                    </div>
+                </div>
+              </div>
+            </div>
+                `)
+            likeUnlikePost()
+            $('#addPostModal').modal('hide')
+        },
+        error: function (error) {
+            console.log(error)
+        }
+
+    })
+})
+
+------alert success/error
+#ebteda yek div ba id alert-box misazim badesh yek function hala dar file js e joda be esme functions ha ya harja dg misazim va functione marboot be namayeshe alert ro doros mikonim va oono dar ghesmate success o error gharar midim->
+
+// functions
+const alertsHandle = (type, msg) => {
+    alertbox.innerHTML = `
+    <div class="alert alert-${type}" role="alert">
+        ${msg}
+    </div>
+    `
+}
+---
+...
+...
+...
+alertsHandle('success', 'new post added!!')
+error: function (error) {
+	console.log(error)
+     	alertsHandle('danger', 'oops!! somthing went wrong!!')
+}
+
+-------------------------------------------------------------------------------------------------------------- 
+
+
+#23 form reset
+#baraye reset shodane form bade inke data o post ersal shod va sakhte shod bayad dar ghesmate success e ajax element postform ro seda bezanim va reset konim bade anjame hame amaliat ha->
+...
+...
+...
+$('#addPostModal').modal('hide')
+alertsHandle('success', 'new post added!!')
+postForm.reset()
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#24 create detail post page
+#ebteda view marboote ro doros mikonim va url midim behesh->
+def detail_post(request, pk):
+    post = Post.objects.get(pk=pk)
+    form = AddPostForm()
+    context = {
+        'form': form,
+        'post': post
+    }
+    return render(request, 'posts/detail_post.html', context)
+--
+#badesh url ro midim->     path('posts/<int:pk>', detail_post, name='detail-post'),
+-- link dehi
+#const pageUrl = window.location.href
+<a href="${pageUrl}/${response.id}" class="btn btn-primary">details</a>
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#25 working on detail page back-btn
+#ebteda html ro yekam taghir midim ta btn haye lazem ro dashte bashe->
+
+    <button id="back-btn" class="btn btn-info">back to posts</button>
+    <button id="update-btn" class="btn btn-primary">update</button>
+    <button id="delete-btn" class="btn btn-danger">delete</button>
+    <div id="spinner-box">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+    </div>
+    <div class="mt-1" id="post-box"></div>
+
+#badesh js e jadidi vase detail page misazim va link midim be html detailpage va in episode backbtn ro doros mikonim->
+const backBtn = document.getElementById('back-btn')
+backBtn.addEventListener('click', function () {
+    history.back()
+})
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#26 return data json response for post detail page
+#ebteda view oon ro minevisim va url esh ro midim
+def detail_post_data(request, pk):
+    post = Post.objects.get(pk=pk)
+    data = {
+        'id': post.id,
+        'title': post.title,
+        'body': post.body,
+        'author': post.author.user.username,
+        'logged_in': request.user.username
+    }
+    return JsonResponse({'data': data})
+--url
+path('posts/<int:pk>/data', detail_post_data, name='detail-post-data'),
+
+-----
+#badesh dakhele js marboote(detail.js) code(ajax)minevisim ta data ro bekhoone(get kone) az oon url ->
+
+const pageUrl = window.location.href + "/data"
+const spinner=document.getElementById('spinner-box')
+$.ajax({
+    type: 'GET',
+    url: pageUrl,
+    success: function (response) {
+        console.log(response)
+        spinner.classList.add('not-visible')
+    },
+    error: function (error) {
+        console.log(error)
+    }
+
+})
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#27 add favicon
+#favicon hamoon icon ee hast ke dar bakhshe title e site neshoon mide.baraye saakhte free icon be favicon.io mirim va yeki misazim dar bakhshe generator va badesh dar base.html link midm->
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#28 hide update and delete btn 
+#kollan in jalase ghesmate success e ajax e detail data ro edit mikonim ta age user ba author yeki bood btn haye delete opdate ghabele didan bashe->
+
+    success: function (response) {
+        console.log(response)
+        const data = response.data
+        if (data.logged_in !== data.author) {
+            console.log('different=> author=', data.author, 'user_logged_in=', data.logged_in)
+        } else {
+            updateBtn.classList.remove('not-visible')
+            deleteBtn.classList.remove('not-visible')
+        }
+        spinner.classList.add('not-visible')
+    },
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#29 show data title and body with create element-setattribute-appendchild
+#in jalase ham kollan dar success e js e detail data kar mikonim ->
+    success: function (response) {
+        console.log(response)
+        const data = response.data
+        if (data.logged_in !== data.author) {
+            console.log('different=> author=', data.author, 'user_logged_in=', data.logged_in)
+        } else {
+            updateBtn.classList.remove('not-visible')
+            deleteBtn.classList.remove('not-visible')
+        }
+
+---
+        const titleEl = document.createElement('h3')
+        titleEl.setAttribute('class', 'mt-3')
+        const bodyEl = document.createElement('p')
+        bodyEl.setAttribute('class', 'mt-1')
+
+        titleEl.textContent = data.title
+        bodyEl.textContent = data.body
+
+        postBox.appendChild(titleEl)
+        postBox.appendChild(bodyEl)
+        spinner.classList.add('not-visible')
+    },
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#30 adding modals to update and delete btn
+#ebteda modal e update ro az post page copy mikonim va set mikonim modal esh ro.az oonjayi ke jalase haye ghabl form ro dar view gozahste boodim oke va ejra mishe az oonjayi ke dar jalase #21 anjam dadim dobare neminevisam faghat yadet bashe id btn o khode modal ro set koni
+
+    <!-- deleteModal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">delete post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>are you sure to delete <b>{{ post.title }}</b>?!</p>
+                    <form method="post" id="delete-form">
+                        {% csrf_token %}
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger"
+                                    data-bs-dismiss="modal">Close
+                            </button>
+                            <button type="submit" class="btn btn-success">delete</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+----
+    <!-- updateModal -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">update post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert-box"></div>
+                    <form method="post" id="update-form">
+                        {% csrf_token %}
+                        {{ form | crispy }}
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger"
+                                    data-bs-dismiss="modal">Close
+                            </button>
+                            <button type="submit" class="btn btn-success">update</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+----
+    <!-- Button trigger modal -->
+    <button id="back-btn" class="btn btn-info">back to posts</button>
+    <button id="update-btn" class="btn btn-primary not-visible" data-bs-toggle="modal"
+            data-bs-target="#updateModal">update
+    </button>
+    <button id="delete-btn" class="btn btn-danger not-visible" data-bs-toggle="modal"
+            data-bs-target="#deleteModal">delete
+    </button>
+
+--------js
+#hala baraye inke value e title o body ro dar form gharar bedim bejaye view(instance) az js estefade mikonim va set mikonim->
+    success: function (response) {
+        console.log(response)
+        const data = response.data
+        if (data.logged_in !== data.author) {
+            console.log('different=> author=', data.author, 'user_logged_in=', data.logged_in)
+            updateBtn.setAttribute('class', 'not-visible')
+            deleteBtn.setAttribute('class', 'not-visible')
+        } else {
+            updateBtn.classList.remove('not-visible')
+            deleteBtn.classList.remove('not-visible')
+            //set title and body in update form
+            const titleInput = document.getElementById('id_title')
+            const bodyInput = document.getElementById('id_body')
+            titleInput.value = data.title
+            bodyInput.value = data.body
+        }
+        // show title and body
+        const titleEl = document.createElement('h3')
+        titleEl.setAttribute('class', 'mt-3')
+        const bodyEl = document.createElement('p')
+        bodyEl.setAttribute('class', 'mt-1')
+
+        titleEl.textContent = data.title
+        bodyEl.textContent = data.body
+
+        postBox.appendChild(titleEl)
+        postBox.appendChild(bodyEl)
+
+        spinner.classList.add('not-visible')
+    },
+
+-------------------------------------------------------------------------------------------------------------- 
+#31 wirting update and delete views
+#ebteda baraye namayeshe behtar form e delete ro az modal-body miare biroon va dakhele modal-footer gharar midim.daghigh nafahmidam  farghesh chie!! :/
+                <div class="modal-body">
+                    <p>are you sure to delete <b>{{ post.title }}</b>?!</p>
+                </div>
+
+                <div class="modal-footer">
+                    <form method="post" id="delete-form">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-danger"
+                                data-bs-dismiss="modal">Close
+                        </button>
+                        <button type="submit" class="btn btn-success">delete</button>
+                    </form>
+                </div>
+---
+#view haro minevisim va vase delete jalase bad ehtemalan jsonresponse ro set mikone felan khali return mishe albate man ye status felan gozashtam ta badan az sweet alert(jalase 123 e eshop) estefade konam ta begam delete shod ya update shod post :/
+#albate fek konam badan be view ha bayad in ro ham add konim ke age request.user==author betoone delete ya update beshe chon btn haye update o delete easy access daran :/
+
+def update_post(request, pk):
+    if request.POST:
+        target_post = Post.objects.get(pk=pk)
+        new_title = request.POST.get('title')
+        new_body = request.POST.get('body')
+        target_post.title = new_title
+        target_post.body = new_body
+        target_post.save()
+        return JsonResponse({'title': new_title, 'body': new_body, 'status': 'post updated'})
+
+
+def delete_post(request, pk):
+    if request.POST:
+        target_post = Post.objects.get(pk=pk)
+        target_post.delete()
+        return JsonResponse({'status': 'post deleted!!'})
+
+--url haro ham set mikonim ta badan azashoon estefade konim va ba ersale ajax be oon address ha betoonim ye post ro delete ya update konim
+    path('posts/<int:pk>/update', update_post, name='update-post'),
+    path('posts/<int:pk>/delete', delete_post, name='delete-post'),
+
+-------------------------------------------------------------------------------------------------------------- 
+#32 complete update and a little delete post
+
+#1-in jalase update ro ok mikonim jalase bad delete.ebteda url ee ke dar urls.py set kardim ro vase har kodoom midim.
+#2-badesh form har kodoom ro dar kenare csrf e form migirim
+#3-badesh vase form e update vase submit esh yek addlistener set mikonim ta ba click roosh karhayi ke mikhaym anjam beshe.ba ajax title ina ro mifrestim age success bood ajax karhayi ke mikhaym anjam beshe va textcontent haye body o title change beshe o alert neshoon bede
+
+#1-
+const updateUrl = window.location.href + "/update"
+const deleteUrl = window.location.href + "/delete"
+#2-
+const updateForm = document.getElementById('update-form')
+const deleteForm = document.getElementById('delete-form')
+const csrf = document.getElementsByName('csrfmiddlewaretoken')
+// i cant understand why dont put getcookie function like posts page to get csrf_token!!?
+//but it works alone and get csrfmiddlewaretoken from detailpage.i think it access to other
+// pages and files...
+#3-
+updateForm.addEventListener('submit', e => {
+    e.preventDefault()
+    const title = document.getElementById('formTitle')
+    const body = document.getElementById('formBody')
+    $.ajax({
+        type: 'POST',
+        url: updateUrl,
+        data: {
+            'csrfmiddlewaretoken': csrf[0].value,
+            'title': titleInput.value,
+            'body': bodyInput.value
+        },
+        success: function (response) {
+            console.log(response)
+            alertsHandle('success','post updated ;))')
+            //alertsHandle is function that writed in main.js functions to help show alerts
+            title.textContent=response.title
+            body.textContent=response.body
+            // $('#updateModal').modal('hide')
+        },
+        error: function (error) {
+            console.log(error)
+        }
+    })
+})
+
+-------------------------------------------------------------------------------------------------------------- 
+#33 complete delete post in js with local storage!! **
+#ebteda dar js e detail post baraye delete karhasho mikonim ta bade darkhast be view o pak kardanesh az database dar safhe ham ok beshe o refresh beshe list.
+
+const deleteUrl = window.location.href + "/delete"
+const deleteForm = document.getElementById('delete-form')
+deleteForm.addEventListener('submit', e => {
+    e.preventDefault()
+
+    $.ajax({
+        type: 'POST',
+        url: deleteUrl,
+        data: {
+            'csrfmiddlewaretoken': csrf[0].value,
+        },
+        success: function (response) {
+            window.location.href=window.location.origin+"/posts"
+            // history.back()
+            localStorage.setItem('title',titleInput.value)
+        },
+        error: function (error) {
+            console.log(error)
+        }
+    })
+})
+---
+#badesh bayad alert bedim dar safhe posts page(hamoon page o href ke dadim bade deleted return kone) ke in title ke dar localstorage save shode bood delete shod->
+
+//deleted alert
+const postDeleted = localStorage.getItem('deletedTitle')
+if (postDeleted) {
+    console.log('deleted')
+    alertsHandle('danger', `the "${postDeleted}" deleted!!`)
+    localStorage.clear()
+}
+-------------------------------------------------------------------------------------------------------------- 
+#34 create the photo model for post and add some photos / add get_photos method to Post model to get all photos for every post
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    body = models.TextField()
+    liked = models.ManyToManyField(User, blank=True)
+    author = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def like_count(self):
+        return self.liked.all().count()
+
+    def get_photos(self):
+        return self.photopost_set.all()
+
+    class Meta:
+        ordering = ('-created',)  # remember that is tuple!!
+
+
+class PhotoPost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='images')
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.post.title}-{self.pk}"
+-------------------------------------------------------------------------------------------------------------- 
+#35 add carousel to detail page
+#carousel hamoon slider e khodemoone ke ba bootstrap doros shode va ba ye forloop doros mikonimesh vase ax haye har post
+    <!-- carousel-->
+    {% if post.get_photos %}
+        <div id="carouselExampleControls" class="carousel slide mb-4 mt-4"
+             data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for image in post.get_photos %}
+                    {#                    {% if forloop.counter == 1 %}active{% endif %} #}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %} ">
+                        <img src="{{ image.image.url }}" class="d-block w-100"
+                             alt="{{ image }}">
+                    </div>
+                {% endfor %}
+            </div>
+            {% if post.get_photos|length > 1 %}
+                <button class="carousel-control-prev" type="button"
+                        data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button"
+                        data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="mt-2 mb-2">there is no photo to show</div>
+    {% endif %}
+    <!-- end carousel-->
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#36 add drop zone js to project and add-post-div
+#dropzone hamoon jayi hast dar form ke ax haro drop mikonim dakhelesh vase add kardan be ax haye post estefaade mikonim.yadet bashe faghat chanta ax bahash mishe add kard ba dropzone.
+
+<!-- dropzone links -->
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js" defer></script>
+<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css"/>
+<!-- end dropzone links -->
+
+----
+#html form code
+<form action="/upload" class="dropzone dz">
+	{% csrf_token %}
+	<div class="fallback">
+		<input type="file" name="file" multiple/>
+	</div>
+</form>
+----css
+#baraye behtar shodanesh yekam css ham add kardim
+
+.dz {
+    border: dashed !important;
+    border-color: #ccc !important;
+    border-radius: 10px !important;
+}
+.dz:hover{
+    background-color: aliceblue !important;
+}
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#37 creating the view for image uploading
+#view ke minevisim bayad ba in did bashe ke bade add shodane poste jadid in view call beshe va ejra beshe ta ba id poste jadide add shode ro begire va image haye marboote ro vasash add kone ;))
+
+def image_upload(request):
+    print(request.FILES)
+    # if request.POST:
+    if request.method == 'POST':
+        img = request.FILES.get('file')
+        new_post_id = request.POST.get('new_post_id')
+        target_post = Post.objects.get(id=new_post_id)
+        PhotoPost.objects.create(image=img, post=target_post)
+    return HttpResponse()
+
+---url
+path('image-upload', image_upload, name='image-upload') -> in marboot be form e upload image chon mishe actione oon be inja marboote pas havaset bashe.hala ya dasti vared koni url ro ua ba {%url 'address'%} set konish.
+
+-------------------------------------------------------------------------------------------------------------- 
+#38 edit dropzone and add post forms
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">create post</h5>
+                        <button type="button" class="btn-close add-modal-close"->class
+                                data-bs-dismiss="modal"
+                                aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" id="post-form">
+                            {% csrf_token %}
+                            {{ form | crispy }}
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger add-modal-close" ->class
+                                        data-bs-dismiss="modal">Close
+                                </button>
+                                <button type="submit" id="add-btn" ->id
+                                        class="btn btn-success">add
+                                </button>
+                            </div>
+                        </form>
+                        <form action="image-upload" class="dropzone dz not-visible"> ->class(not-visible)
+                            {% csrf_token %}
+                            <div class="fallback">
+                                <input type="file" name="file" multiple/>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+---js
+//edit forms for dropzone
+const myDropzone=document.getElementById('my-dz')
+const addBtn=document.getElementById('add-btn')
+const closeBtn=[...document.getElementsByClassName('add-modal-close')]
+
+//show dropzone after post added to drop target images in that zone to add
+addBtn.addEventListener('click',()=>{
+    myDropzone.classList.remove('not-visible')
+})
+
+//add again not-visible class to dropzone divison to when add post uses again we cant see dropzone
+closeBtn.forEach(btn=>btn.addEventListener('click',()=>{
+    postForm.reset()
+    if (!myDropzone.classList.contains('not-visible')){
+        myDropzone.classList.add('not-visble')
+    }
+}))
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#39 adding some limitations for dropzone
+#baraye ersale id e post e jadid e add shode bayad yek var doros konim ke ke badan ba add post meghdar begire ->
+
+// this is for send post id for add images in dropzone that need id to send form to view
+let newPostId=null
+--
+#hala bayad dar ghesmate success e postform ke hamoon form e add post hast bayad newpostid ro meghdar bedim ta paeentar estefade konim baraye dropzone->
+
+postForm.addEventListener(....
+	$.ajax({success:function(){
+		newPostId=response.id
+	}})
+
+-----
+#hala bayad ye obj besazim ke limit haye dropzone va data haye morede niaz baraye ersal be view e image ro dashte bashe.faghat nemidoonam chera obj doros kardim chera ajax nazadim!!
+
+// limitation for dropzone ***
+Dropzone.autoDiscover=false //if we dont set this dropzone try atach files twice or more! ->dropzone vase khode main dropzone e k khate bad azash obj misazim
+
+const dropzone=new Dropzone('#my-dz',{
+    url:'image-upload',
+    init:function () {
+        this.on('sending',function (file,xhr,formData) {
+            formData.append('csrfmiddlewaretoken',csrftoken)
+            formData.append('new_post_id',newPostId)
+        })
+    },
+    maxFiles:5,
+    maxFilesize:4,
+    acceptedFiles:'.png ,.jpg, .jpeg'
+})
+
+-------------------------------------------------------------------------------------------------------------- 
+
+#40 implementing quick improvements **
+#in jalase yekam code haye marboot be dropzone ro edit mikonim ta yek seri error e logical ro ok konim->
+
+#bejaye history.back az url estefade mikonim va backbtn ro be a tag taghiiir midim ta vaghti az detailpage e post e taze add shode be back mirim data haro mese dafe ghable add post neshoon nade ->
+#dar js e detailpage harchizi ke backbtn marboot bashe delete mikoni->
+--html 
+<a href="{% url 'posts' %}" id="back-btn" class="btn btn-info">back to posts</a>
+
+-----
+#moshkele badi ine ke bade add kardane photo be dropzone age be url addresse dg mese detail page ina nari va dobare add post bezani dropzne hamchenan pore vase hamin bayad reset beshe bade add post->
+
+closeBtn.forEach(btn => btn.addEventListener('click', () => {
+    postForm.reset()
+    if (!myDropzone.classList.contains('not-visible')) {
+        myDropzone.classList.add('not-visible')
+        const dz = Dropzone.forElement('#my-dz')
+        dz.removeAllFiles(true)
+    }
+
+}))
+
+--------------------------------------------------------------------------------------------------- 
+
+#41 create user profile view
+#ebteda form e oon model ro doros mikonim vase view morede nazar->
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'avatar']
+-----
+#badesh bayad view ro doros konim->
+
+def profile_page(request):
+    user = Profile.objects.get(user=request.user)
+    form = UserProfileForm(request.POST or None, request.FILES or None, instance=user)
+    if request.POST:
+        if form.is_valid():
+            instance = form.save()
+            # we must not save form directly to use that form and send data with jsonresponse
+            return JsonResponse({
+                'bio': instance.bio,
+                'avatar': instance.avatar.url,
+                'user': instance.user.username
+            })
+    # if request is not Post (is Get) must send form to show it
+    context = {
+        'user': user,
+        'form': form
+    }
+    return render(request, 'profile/main_user_profile.html', context)
+
+#jalase bad karhaye template o html o url esh ro mikonim
+
+--------------------------------------------------------------------------------------------------- 
+
+#42 registration profile view template 
+#url ro set mikoni ham dar khode app e profile ham dar main url ha include mikoni.
+#age doos dashti be nav add mikoni badesh ham
+#js e makhsoos be profile html ro add mikoni va be html link mikoni
+
+--------------------------------------------------------------------------------------------------- 
+
+#43 work on profile template and show data
+#faghat vase user hayi ke login hastand error nemide vase hamin dar jalase bad fek konam login_required view esh ro mizarim!!
+
+<div id="alert-box"></div>
+<h3>{{ user.user }}</h3>
+<hr>
+<div class="text-center" id="avatar-box">
+        {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="{{ user.user.username }}" class="rounded"
+                 height="200px" width="auto">
+        {% else %}
+            <img src="{% static 'uploads/images/avatar_profile/avatar.jpg' %}" alt=
+                    "{{ user.user.username }}" class="rounded" height="200px" width="auto">
+        {% endif %}
+</div>
+
+<form id="profile-form" action="">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary mt-3 mb-3">save</button>
+</form>
+
+--------------------------------------------------------------------------------------------------- 
+#44 updating the profile data with ajax
+const avatarBox = document.getElementById('avatar-box')
+const alertbox = document.getElementById('alert-box')
+const profileForm = document.getElementById('profile-form')
+const csrf = document.getElementsByName('csrfmiddlewaretoken')
+
+const bioInput = document.getElementById('id_bio')
+const avatarInput = document.getElementById('id_avatar')
+// console.log(avatarInput, csrf[0].value, bioInput.value)
+
+//now we must add eventlistener to profileform that when we click to save,send a dataform to view
+profileForm.addEventListener('submit', e => {
+    e.preventDefault()
+
+    //now create obj from formdata to append 3 data to that form and send to view with other data!!
+    const formData = new FormData()
+    formData.append('csrfmiddlewaretoken', csrf[0].value)
+    formData.append('bio', bioInput.value)
+    formData.append('avatar', avatarInput.files[0])
+
+    //now we must send data with ajax to target url(that is for target view)
+    //remember that if we put url in ajax empty it means that send data in that url that call
+    // this ajax and use that!! so here it send ajax data(post) to url that use for profile html
+
+    $.ajax({
+        type: 'POST',
+        url: '',
+        enctype: 'multipart/form-data',
+        data: formData,
+        success: function (response) {
+            // console.log(response)
+
+            //till here everything is ok and save but we need to show avatar and bio right after
+            // changing and set a new pic and bio;so we need to code js that img in avatar box
+            // refresh and show new pic and bio ;)) ->
+
+            avatarBox.innerHTML = `
+            <img src="${response.avatar}" alt="${response.user.username}" class="rounded"
+             height="300px" width="auto">
+            `
+            //We can change src attr instead of innerhtml
+
+            bioInput.value = response.bio
+            alertsHandle('success', 'your profile has been updated!!')
+        },
+        error: function (error) {
+            console.log('error=', error)
+        },
+        processData: false,
+        contentType: false,
+        cache: false,
+    })
+})
+
+--------------------------------------------------------------------------------------------------- 
+#45 improving views-1 ***
+#in jalase view delete ro check mikonim ke error e logic ina ro ok konim.
+
+#aval biroone sharte request.post ham yek return gharar midim masalan Http404 ya redirect ya jsonresponse...->
+return JsonResponse({'status': 'access denied!!'})
+
+#badesh yek custom(built in) decorator doros mikonim ke kasi ke author e oon post nis ba vojoode access be btn e delete(html) natoone delete kone->
+
+def action_permission(func):
+    def wrapper(request, **kwargs):
+        # func=delete post that get target post-> delete_post(request,pk)->**kwargs=pk
+        pk = kwargs.get('pk')
+        profile = Profile.objects.get(user=request.user)
+        post = Post.objects.get(pk=pk)
+        if profile.user == post.author.user:
+            return func(request, **kwargs)
+        else:
+            print('no')
+            return redirect(reverse('post-list'))
+            # this redirect when occur that we write url in address by hand not btn.if click on
+            # btn function do like main author but post dont delete!
+
+    return wrapper
+
+#badesh har view ee ke lazem darim(update view o delete view) az in decoartor estefade mikonim ta age author ba user yeki nabood view e anjam nashe
+--------------------------------------------------------------------------------------------------- 
+
+#46 improving views-2
+#baraye view hayi ke lazem hast ke login bashe az in default decorator estefade mikonim ta baraye estefade aval login kone user->
+
+from django.contrib.auth.decorators import login_required
+@login_required
+
+--------------------------------------------------------------------------------------------------- 
+
+
+

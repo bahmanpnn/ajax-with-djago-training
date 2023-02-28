@@ -2,11 +2,12 @@ from django.urls import path
 # from .views import *
 from .views import (post_list, hello_data, send_data_one, send_data_two, posts,
                     like_unlike_post, detail_post, detail_post_data, update_post, delete_post,
-                    image_upload)
+                    image_upload, LogoutView)
 
 # app_name = 'posts'
 urlpatterns = [
     path('', post_list, name='post-list'),
+    path('logout', LogoutView.as_view(), name='logout'),
     path('like_unlike', like_unlike_post, name='like_unlike'),
     path('hello-data', hello_data, name='hello-data'),
     path('send-data-one', send_data_one, name='send-data-one'),

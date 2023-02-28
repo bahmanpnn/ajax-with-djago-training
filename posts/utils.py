@@ -15,7 +15,7 @@ def action_permission(func):
             return func(request, **kwargs)
         else:
             print('no')
-            return redirect(reverse('post-list'))
+            return redirect(reverse('posts'))
             # this redirect when occur that we write url in address by hand not btn.if click on
             # btn function do like main author but post dont delete!
 

@@ -1,7 +1,11 @@
+from django.contrib.auth import login, logout
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core import serializers
 # Create your views here.
+from django.urls import reverse
+from django.views import View
+
 from posts.models import Post, PhotoPost
 from .forms import AddPostForm
 from profiles.models import Profile
@@ -39,6 +43,7 @@ def send_data_one(request):
 # send object-array
 # def send_data_two(request,n_post):
 # except kwargs we can use n_post directly but for more learning and exprience i use **kwargs
+@login_required
 def send_data_two(request, **kwargs):
     n_post = kwargs.get('n_post')
     visible = 3
@@ -74,6 +79,7 @@ def like_unlike_post(request):
             liked = True
             target_post.liked.add(request.user)
         return JsonResponse({'liked': liked, 'count': target_post.like_count})
+    return redirect(reverse('posts'))
 
 
 @login_required
@@ -98,6 +104,7 @@ def posts(request):
     return render(request, 'posts/posts(main).html', context)
 
 
+@login_required
 def detail_post(request, pk):
     post = Post.objects.get(pk=pk)
     form = AddPostForm()
@@ -108,6 +115,7 @@ def detail_post(request, pk):
     return render(request, 'posts/detail_post.html', context)
 
 
+@login_required
 def detail_post_data(request, pk):
     post = Post.objects.get(pk=pk)
     data = {
@@ -131,6 +139,7 @@ def update_post(request, pk):
         target_post.body = new_body
         target_post.save()
         return JsonResponse({'title': new_title, 'body': new_body, 'status': 'post updated'})
+    return redirect(reverse('posts'))
 
 
 @login_required
@@ -143,7 +152,7 @@ def delete_post(request, pk):
     return JsonResponse({'status': 'access denied!!'})
 
 
-@login_required
+# @login_required
 def image_upload(request):
     print(request.FILES)
     # if request.POST:
@@ -152,4 +161,10 @@ def image_upload(request):
         new_post_id = request.POST.get('new_post_id')
         target_post = Post.objects.get(id=new_post_id)
         PhotoPost.objects.create(image=img, post=target_post)
-    return HttpResponse()
+    return HttpResponse('error')
+
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect(reverse('post-list'))

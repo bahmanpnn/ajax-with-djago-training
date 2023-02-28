@@ -32,7 +32,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form method="post" id="post-form">
+                        <form method="post" id="post-form" autocomplete="off">
                             {% csrf_token %}
                             {{ form | crispy }}
                             <div class="modal-footer">
