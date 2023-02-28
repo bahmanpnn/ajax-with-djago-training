@@ -5,6 +5,7 @@ from django.core import serializers
 from posts.models import Post, PhotoPost
 from .forms import AddPostForm
 from profiles.models import Profile
+from .utils import action_permission
 
 
 def post_list(request):
@@ -126,11 +127,13 @@ def update_post(request, pk):
         return JsonResponse({'title': new_title, 'body': new_body, 'status': 'post updated'})
 
 
+@action_permission
 def delete_post(request, pk):
     if request.POST:
         target_post = Post.objects.get(pk=pk)
         target_post.delete()
         return JsonResponse({'status': 'post deleted!!'})
+    return JsonResponse({'status': 'access denied!!'})
 
 
 def image_upload(request):

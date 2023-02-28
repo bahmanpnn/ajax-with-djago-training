@@ -178,6 +178,11 @@ if (postDeleted) {
     console.log('deleted')
     alertsHandle('danger', `the "${postDeleted}" deleted!!`)
     localStorage.clear()
+} else {
+    if (postDeleted !== null) {
+        alertsHandle('danger', `the post did not deleted!!`)
+        localStorage.clear()
+    }
 }
 //edit forms for dropzone
 const myDropzone = document.getElementById('my-dz')
